@@ -14,7 +14,6 @@
   boot.kernelParams = [
     "quiet"
     "splash"
-    "radeon.dpm=1"      # active la gestion dynamique d'alimentation pour la puce AMD
   ];
 
   # ── Réseau ──────────────────────────────────────────────────────────────────
@@ -39,9 +38,6 @@
   };
 
   # ── GPU : iGPU AMD (APU A10 Pro) ────────────────────────────────────────────
-  # Driver radeon open source — bien supporté, dans le cache nixos, pas de compilation
-  services.xserver.videoDrivers = [ "radeon" ];
-
   hardware.graphics = {
     enable      = true;
     enable32Bit = true;   # nécessaire pour Minecraft (Java 32-bit libs)
