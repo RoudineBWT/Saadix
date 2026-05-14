@@ -3,7 +3,7 @@
 {
   imports = [
     ./flatpak.nix
-  ]
+  ];
   # ── Bootloader ──────────────────────────────────────────────────────────────
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";  # adapte selon ton disque

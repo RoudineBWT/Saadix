@@ -9,29 +9,15 @@
             location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
           }
         ];
-        # Put your flatpak here or you just use terminal to install them
+
         packages = [
-          "org.vinegarhq.Sober"
+          { appId = "org.vinegarhq.Sober"; origin = "flathub"; }
         ];
-      };
 
-  # ── Flatpak auto-update ──────────────────────────────────────────────────
-  systemd.services.flatpak-update = {
-        description = "Update Flatpak apps";
-        after = [ "network-online.target" ];
-        wants = [ "network-online.target" ];
-        serviceConfig = {
-          Type = "oneshot";
-          ExecStart = "${pkgs.flatpak}/bin/flatpak update --noninteractive";
+        # Mise à jour auto via nix-flatpak
+        update.auto = {
+          enable = true;
+          onCalendar = "daily";
         };
       };
-
-      systemd.timers.flatpak-update = {
-        wantedBy = [ "timers.target" ];
-        timerConfig = {
-          OnCalendar = "daily";
-          Persistent = true;
-        };
-      };
-    };
-  }
+    }
