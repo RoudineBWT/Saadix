@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, ... }:
+{ config, pkgs, lib, inputs, brave-previews, ... }:
 
 {
   # ── Bootloader ──────────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@
     celluloid                # lecteur vidéo léger (MPV frontend)
 
     # Navigateur
-    brave-orgin-beta
+    inputs.brave-previews.packages.${pkgs.system}.brave-origin-beta
 
     # Utilitaires réseau
     networkmanagerapplet
@@ -165,10 +165,12 @@
         "https://cache.nixos.org"
         "https://cache.garnix.io"
         "https://freesmlauncher.cachix.org"
+        "https://nix-community.cachix.org"
       ];
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
         "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCUSeBs="
         "freesmlauncher.cachix.org-1:Jcp5Q9wiLL+EDv8Mh7c6L9xGk+lXr7/otpKxMOuBuDs="
       ];
     };
