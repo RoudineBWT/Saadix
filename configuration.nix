@@ -62,7 +62,7 @@
 
   # Environnement de bureau Cinnamon
   services.xserver.desktopManager.cinnamon.enable = true;
-
+  services.dbus.enable = true;
   # ── Son (PipeWire) ───────────────────────────────────────────────────────────
   security.rtkit.enable = true;
   services.pipewire = {
@@ -79,7 +79,7 @@
   users.users.saad = {
     isNormalUser = true;
     description  = "saad";
-    extraGroups  = [ "networkmanager" "wheel" "audio" "video" ];
+    extraGroups  = [ "networkmanager" "wheel" "audio" "video" "input" "tty" ];
   };
 
   # ── Packages système ─────────────────────────────────────────────────────────
