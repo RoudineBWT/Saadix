@@ -1,4 +1,4 @@
-# NixOS — AMD A10 Pro + GTX 630 / Cinnamon
+# NixOS — AMD A10 Pro / Cinnamon
 
 Configuration NixOS avec Flakes, nix-flatpak et l'environnement de bureau Cinnamon.
 
@@ -8,8 +8,8 @@ Configuration NixOS avec Flakes, nix-flatpak et l'environnement de bureau Cinnam
 
 ```
 nixos-config/
-├── flake.nix                 # Point d'entrée Nix Flakes
-├── configuration.nix         # Config système principale
+├── flake.nix                   # Point d'entrée Nix Flakes
+├── configuration.nix           # Config système principale
 ├── hardware-configuration.nix  # ⚠️ À RÉGÉNÉRER sur la machine
 └── README.md
 ```
@@ -26,22 +26,17 @@ Grave-la sur une clé USB avec Ventoy ou `dd`.
 ### 2. Partitionner et monter
 
 ```bash
-# Exemple avec un seul disque /dev/sda (GPT + EFI)
-parted /dev/sda -- mklabel gpt
-parted /dev/sda -- mkpart ESP fat32 1MB 512MB
-parted /dev/sda -- set 1 esp on
-parted /dev/sda -- mkpart primary ext4 512MB 100%
+# Exemple avec un seul disque /dev/sda (BIOS legacy / MBR)
+parted /dev/sda -- mklabel msdos
+parted /dev/sda -- mkpart primary ext4 1MB 100%
 
-mkfs.fat  -F 32 /dev/sda1
-mkfs.ext4       /dev/sda2
+mkfs.ext4 /dev/sda1
 
-mount /dev/sda2 /mnt
-mkdir -p /mnt/boot
-mount /dev/sda1 /mnt/boot
+mount /dev/sda1 /mnt
 ```
 
-> Si la machine utilise du BIOS legacy (pas d'EFI), adapte le `configuration.nix`
-> en remplaçant `systemd-boot` par GRUB (commentaires inclus dans le fichier).
+> Si la machine supporte l'EFI, adapte le partitionnement avec une partition ESP
+> et remplace GRUB par `systemd-boot` dans `configuration.nix`.
 
 ### 3. Générer le hardware-configuration
 
@@ -67,13 +62,13 @@ Dans `configuration.nix`, change :
 |-------|-----------------------|
 | `networking.hostName` | Nom de la machine |
 | `time.timeZone` | Fuseau horaire |
-| `users.users.ton-frere` | Nom d'utilisateur réel |
-| `initialPassword` | Mot de passe provisoire |
+| `users.users.saad` | Nom d'utilisateur réel |
+| `boot.loader.grub.device` | Disque cible (ex: `/dev/sda`) |
 
 ### 6. Installer
 
 ```bash
-nixos-install --flake /mnt/etc/nixos#nixos
+nixos-install --flake /mnt/etc/nixos#saadix
 ```
 
 Puis redémarre :
@@ -95,14 +90,14 @@ passwd
 ### Mettre à jour le système
 
 ```bash
-sudo nixos-rebuild switch --flake /etc/nixos#nixos
+sudo nixos-rebuild switch --flake /etc/nixos#saadix
 ```
 
 ### Mettre à jour les inputs du flake
 
 ```bash
 sudo nix flake update /etc/nixos
-sudo nixos-rebuild switch --flake /etc/nixos#nixos
+sudo nixos-rebuild switch --flake /etc/nixos#saadix
 ```
 
 ---
@@ -110,16 +105,9 @@ sudo nixos-rebuild switch --flake /etc/nixos#nixos
 ## Notes sur le matériel
 
 ### AMD A10 Pro (iGPU Radeon)
-- Driver `radeon` (open source, inclus dans le kernel)
-- `amdgpu.dc=0` désactivé dans les paramètres kernel pour éviter les freezes
-  sur les vieux APU Richland/Kaveri
-
-### NVIDIA GT 630 (Fermi GF108 — c816)
-- Le GT 630 référence c816 est un chip **GF108, architecture Fermi** (≠ Kepler)
-- Seul le driver propriétaire **nvidia 390.xx legacy** le supporte sous Linux
-- Le driver 470 ne fonctionne **pas** sur Fermi malgré ce que le site NVIDIA peut suggérer
-- `nouveau` est fonctionnel pour l'affichage 2D mais des kernel panics GF108 sont documentés — le 390.xx est plus fiable
-- La config utilise `hardware.nvidia.package = nvidiaPackages.legacy_390`
+- Driver `radeon` open source — inclus dans le kernel, dans le cache nixos (pas de compilation)
+- `hardware.graphics.enable32Bit = true` activé pour la compatibilité Minecraft
+- Suffisant pour Cinnamon + Minecraft
 
 ### zram swap
 - Activé par défaut — compresse la RAM avec zstd
@@ -132,13 +120,13 @@ sudo nixos-rebuild switch --flake /etc/nixos#nixos
 Dans `configuration.nix`, section `services.flatpak.packages` :
 
 ```nix
-{ appId = "org.kde.kdenlive";     origin = "flathub"; }
-{ appId = "net.lutris.Lutris";    origin = "flathub"; }
+{ appId = "org.kde.kdenlive";        origin = "flathub"; }
+{ appId = "net.lutris.Lutris";       origin = "flathub"; }
 { appId = "com.valvesoftware.Steam"; origin = "flathub"; }
 ```
 
 Puis :
 
 ```bash
-sudo nixos-rebuild switch --flake /etc/nixos#nixos
+sudo nixos-rebuild switch --flake /etc/nixos#saadix
 ```

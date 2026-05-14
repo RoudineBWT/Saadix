@@ -1,18 +1,16 @@
-{ config, pkgs, lib, inputs, brave-previews, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
   # ── Bootloader ──────────────────────────────────────────────────────────────
-   boot.loader.grub.enable  = true;
-   boot.loader.grub.device  = "/dev/sda";  # adapte selon ton disque
+  boot.loader.grub.enable = true;
+  boot.loader.grub.device = "/dev/sda";  # adapte selon ton disque
 
   # ── Kernel & paramètres bas niveau ──────────────────────────────────────────
   boot.kernelPackages = pkgs.linuxPackages_6_6;   # LTS stable, bon support AMD APU old-gen
 
-  # Paramètres utiles sur vieille machine
   boot.kernelParams = [
     "quiet"
     "splash"
-    "amdgpu.dc=0"       # désactive Display Core sur vieux APU AMD (évite freeze au boot)
     "radeon.dpm=1"      # active la gestion dynamique d'alimentation pour la puce AMD
   ];
 
@@ -21,7 +19,7 @@
   networking.networkmanager.enable = true;
 
   # ── Localisation ────────────────────────────────────────────────────────────
-  time.timeZone               = "Europe/Paris";    # Change si besoin
+  time.timeZone               = "Europe/Paris";
   i18n.defaultLocale          = "fr_FR.UTF-8";
   console.keyMap              = "fr";
 
@@ -37,66 +35,47 @@
     LC_TIME           = "fr_FR.UTF-8";
   };
 
-  # ── GPU : iGPU AMD (APU A10 Pro) + NVIDIA GT 630 (Fermi GF108) ──────────────
-  # Le GT 630 (c816 / GF108) est une architecture FERMI — pas Kepler !
-  # Seul le driver propriétaire nvidia legacy 390.xx le supporte correctement.
-  # Le driver 470 ne fonctionne PAS sur Fermi (erreur fréquente).
-  # "nouveau" fonctionne pour l'affichage de base mais peut être instable (kernel panics connus sur GF108).
+  # ── GPU : iGPU AMD (APU A10 Pro) ────────────────────────────────────────────
+  # Driver radeon open source — bien supporté, dans le cache nixos, pas de compilation
+  services.xserver.videoDrivers = [ "radeon" ];
 
-  services.xserver.videoDrivers = [ "nvidia" ];
-
-  hardware.nvidia = {
-    package                = config.boot.kernelPackages.nvidiaPackages.legacy_390;
-    modesetting.enable     = false;  # le 390 ne supporte pas bien le KMS
-    powerManagement.enable = false;
-    open                   = false;  # pas de driver open pour Fermi
-    nvidiaSettings         = false;
-  };
-
-  # Active le rendu matériel Mesa pour l'APU AMD (radeontop/vdpau)
   hardware.graphics = {
     enable      = true;
-    enable32Bit = true;
+    enable32Bit = true;   # nécessaire pour Minecraft (Java 32-bit libs)
   };
 
   # ── Serveur d'affichage X11 + Cinnamon ──────────────────────────────────────
   services.xserver = {
     enable = true;
-
-    # Disposition clavier française sous X
     xkb.layout  = "fr";
     xkb.variant = "";
   };
 
-  # Gestionnaire de connexion LightDM (natif à Cinnamon)
+  # Gestionnaire de connexion LightDM
   services.xserver.displayManager.lightdm = {
     enable = true;
-    greeters.slick.enable = true;   # greeter par défaut de Linux Mint / Cinnamon
+    greeters.slick.enable = true;
   };
 
   # Environnement de bureau Cinnamon
   services.xserver.desktopManager.cinnamon.enable = true;
 
   # ── Son (PipeWire) ───────────────────────────────────────────────────────────
-  security.rtkit.enable  = true;
+  security.rtkit.enable = true;
   services.pipewire = {
     enable            = true;
     alsa.enable       = true;
     alsa.support32Bit = true;
-    pulse.enable      = true;   # compatibilité PulseAudio
+    pulse.enable      = true;
   };
 
-  # ── Impression (optionnel) ───────────────────────────────────────────────────
+  # ── Impression ───────────────────────────────────────────────────────────────
   services.printing.enable = true;
-
-  # ── Bluetooth (optionnel) ────────────────────────────────────────────────────
-  # hardware.bluetooth.enable = true;
 
   # ── Flatpak (géré par nix-flatpak) ──────────────────────────────────────────
   services.flatpak = {
     enable = true;
 
-    # Dépôts Flatpak
     remotes = [
       {
         name     = "flathub";
@@ -104,13 +83,10 @@
       }
     ];
 
-    # Applications à installer de façon déclarative
-    # Ajoute ou retire selon les besoins de ton frère
     packages = [
-      { appId = "org.vinegarhq.Sober";          origin = "flathub"; }
+      { appId = "org.vinegarhq.Sober"; origin = "flathub"; }
     ];
 
-    # Met à jour les Flatpaks à chaque rebuild (optionnel)
     update.auto = {
       enable     = true;
       onCalendar = "weekly";
@@ -118,10 +94,10 @@
   };
 
   # ── Utilisateur ──────────────────────────────────────────────────────────────
-  users.users.saad = {         # ← Change le nom d'utilisateur ici
-    isNormalUser   = true;
-    description    = "saad";
-    extraGroups    = [ "networkmanager" "wheel" "audio" "video" ];
+  users.users.saad = {
+    isNormalUser = true;
+    description  = "saad";
+    extraGroups  = [ "networkmanager" "wheel" "audio" "video" ];
   };
 
   # ── Packages système ─────────────────────────────────────────────────────────
@@ -136,14 +112,14 @@
     p7zip
 
     # Outils GPU
-    nvtopPackages.nvidia    # moniteur GPU (nvidia 390)
-    mesa-demos               # glxinfo, glxgears pour tester l'accélération
+    nvtopPackages.amd   # moniteur GPU AMD
+    mesa-demos           # glxinfo, glxgears pour tester l'accélération
 
     # Cinnamon / bureau
-    nemo                     # gestionnaire de fichiers
+    nemo
     gnome-screenshot
-    xed-editor               # éditeur de texte Cinnamon
-    celluloid                # lecteur vidéo léger (MPV frontend)
+    xed-editor
+    celluloid
 
     # Navigateur
     inputs.brave-previews.packages.${pkgs.system}.brave-origin-beta
@@ -160,17 +136,15 @@
     settings = {
       experimental-features = [ "nix-command" "flakes" ];
       auto-optimise-store   = true;
-      trusted-users = [ "root" "${username}" ];
+      trusted-users         = [ "root" "saad" ];
       substituters = [
         "https://cache.nixos.org"
         "https://cache.garnix.io"
         "https://freesmlauncher.cachix.org"
-        "https://nix-community.cachix.org"
       ];
       trusted-public-keys = [
         "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
         "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
-        "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCUSeBs="
         "freesmlauncher.cachix.org-1:Jcp5Q9wiLL+EDv8Mh7c6L9xGk+lXr7/otpKxMOuBuDs="
       ];
     };
@@ -181,14 +155,12 @@
     };
   };
 
-  # Autorise les paquets non-libres (utile pour codecs, drivers, etc.)
+  # Autorise les paquets non-libres (codecs, etc.)
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.config.nvidia.acceptLicense = true;
+
   # ── Performances sur vieille machine ─────────────────────────────────────────
-  # Swappiness basse : privilégie la RAM avant le swap
   boot.kernel.sysctl."vm.swappiness" = 10;
 
-  # Zram swap (compression RAM) — utile si RAM < 8 Go
   zramSwap = {
     enable    = true;
     algorithm = "zstd";
@@ -198,6 +170,5 @@
   networking.firewall.enable = true;
 
   # ── Version système ───────────────────────────────────────────────────────────
-  # NE PAS CHANGER après la première installation
   system.stateVersion = "25.11";
 }
