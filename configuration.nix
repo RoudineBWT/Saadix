@@ -160,6 +160,17 @@
     settings = {
       experimental-features = [ "nix-command" "flakes" ];
       auto-optimise-store   = true;
+      trusted-users = [ "root" "${username}" ];
+      substituters = [
+        "https://cache.nixos.org"
+        "https://cache.garnix.io"
+        "https://freesmlauncher.cachix.org"
+      ];
+      trusted-public-keys = [
+        "cache.nixos.org-1:6NCHdD59X431o0gWypbMrAURkbJ16ZPMQFGspcDShjY="
+        "cache.garnix.io:CTFPyKSLcx5RMJKfLo5EEPUObbA78b0YQ2DTCJXqr9g="
+        "freesmlauncher.cachix.org-1:Jcp5Q9wiLL+EDv8Mh7c6L9xGk+lXr7/otpKxMOuBuDs="
+      ];
     };
     gc = {
       automatic = true;
