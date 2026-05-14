@@ -1,6 +1,9 @@
 { config, pkgs, lib, inputs, ... }:
 
 {
+  imports = [
+    ./flatpak.nix
+  ]
   # ── Bootloader ──────────────────────────────────────────────────────────────
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";  # adapte selon ton disque
@@ -70,28 +73,7 @@
   };
 
   # ── Impression ───────────────────────────────────────────────────────────────
-  services.printing.enable = true;
-
-  # ── Flatpak (géré par nix-flatpak) ──────────────────────────────────────────
-  services.flatpak = {
-    enable = true;
-
-    remotes = [
-      {
-        name     = "flathub";
-        location = "https://dl.flathub.org/repo/flathub.flatpakrepo";
-      }
-    ];
-
-    packages = [
-      { appId = "org.vinegarhq.Sober"; origin = "flathub"; }
-    ];
-
-    update.auto = {
-      enable     = true;
-      onCalendar = "weekly";
-    };
-  };
+  services.printing.enable = false;
 
   # ── Utilisateur ──────────────────────────────────────────────────────────────
   users.users.saad = {
