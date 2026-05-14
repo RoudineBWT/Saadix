@@ -24,11 +24,15 @@
     freesmlauncher.url = "github:FreesmTeam/FreesmLauncher";
  };
 
-  outputs = { self, nixpkgs, nix-flatpak, brave-previews, freesmlauncher, ... }:
-  {
-    nixosConfigurations.nixos = nixpkgs.lib.nixosSystem
+  outputs = inputs @ { self, nixpkgs, nix-flatpak, brave-previews, freesmlauncher, ... }:
+  let
+    specialArgs = { inherit inputs; };
+  in
+    {
+    nixosConfigurations.saadix = nixpkgs.lib.nixosSystem
     {
       system = "x86_64-linux";
+      specialArgs = specialArgs;
       modules = [
         ./hardware-configuration.nix
         ./configuration.nix

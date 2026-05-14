@@ -1,13 +1,9 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, inputs, ... }:
 
 {
   # ── Bootloader ──────────────────────────────────────────────────────────────
-  boot.loader.systemd-boot.enable      = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-
-  # Si la machine utilise un BIOS legacy, remplace par :
-  # boot.loader.grub.enable  = true;
-  # boot.loader.grub.device  = "/dev/sda";  # adapte selon ton disque
+   boot.loader.grub.enable  = true;
+   boot.loader.grub.device  = "/dev/sda";  # adapte selon ton disque
 
   # ── Kernel & paramètres bas niveau ──────────────────────────────────────────
   boot.kernelPackages = pkgs.linuxPackages_6_6;   # LTS stable, bon support AMD APU old-gen
@@ -73,13 +69,13 @@
   };
 
   # Gestionnaire de connexion LightDM (natif à Cinnamon)
-  services.displayManager.lightdm = {
+  services.xserver.displayManager.lightdm = {
     enable = true;
     greeters.slick.enable = true;   # greeter par défaut de Linux Mint / Cinnamon
   };
 
   # Environnement de bureau Cinnamon
-  services.desktopManager.cinnamon.enable = true;
+  services.xserver.desktopManager.cinnamon.enable = true;
 
   # ── Son (PipeWire) ───────────────────────────────────────────────────────────
   security.rtkit.enable  = true;
@@ -149,11 +145,14 @@
     xed-editor               # éditeur de texte Cinnamon
     celluloid                # lecteur vidéo léger (MPV frontend)
 
+    # Navigateur
+    brave-orgin-beta
+
     # Utilitaires réseau
     networkmanagerapplet
 
     # Minecraft
-    freesmlauncher
+    inputs.freesmlauncher.packages.${pkgs.system}.default
   ];
 
   # ── Nix ──────────────────────────────────────────────────────────────────────
@@ -171,7 +170,7 @@
 
   # Autorise les paquets non-libres (utile pour codecs, drivers, etc.)
   nixpkgs.config.allowUnfree = true;
-
+  nixpkgs.config.nvidia.acceptLicense = true;
   # ── Performances sur vieille machine ─────────────────────────────────────────
   # Swappiness basse : privilégie la RAM avant le swap
   boot.kernel.sysctl."vm.swappiness" = 10;
