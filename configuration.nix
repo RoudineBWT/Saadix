@@ -111,12 +111,7 @@
     # Applications à installer de façon déclarative
     # Ajoute ou retire selon les besoins de ton frère
     packages = [
-      { appId = "org.mozilla.firefox";          origin = "flathub"; }
-      { appId = "org.videolan.VLC";             origin = "flathub"; }
-      { appId = "org.libreoffice.LibreOffice";  origin = "flathub"; }
-      { appId = "org.gimp.GIMP";                origin = "flathub"; }
-      { appId = "com.spotify.Client";           origin = "flathub"; }
-      { appId = "com.discordapp.Discord";       origin = "flathub"; }
+      { appId = "org.vinegarhq.Sober";          origin = "flathub"; }
     ];
 
     # Met à jour les Flatpaks à chaque rebuild (optionnel)
@@ -127,11 +122,10 @@
   };
 
   # ── Utilisateur ──────────────────────────────────────────────────────────────
-  users.users.ton-frere = {         # ← Change le nom d'utilisateur ici
+  users.users.saad = {         # ← Change le nom d'utilisateur ici
     isNormalUser   = true;
-    description    = "Mon frère";
+    description    = "saad";
     extraGroups    = [ "networkmanager" "wheel" "audio" "video" ];
-    initialPassword = "changeme";   # ← Il devra changer le mot de passe au 1er login
   };
 
   # ── Packages système ─────────────────────────────────────────────────────────
@@ -157,6 +151,9 @@
 
     # Utilitaires réseau
     networkmanagerapplet
+
+    # Minecraft
+    freesmlauncher
   ];
 
   # ── Nix ──────────────────────────────────────────────────────────────────────
