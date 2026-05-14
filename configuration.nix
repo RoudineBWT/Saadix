@@ -55,10 +55,7 @@
   };
 
   # Gestionnaire de connexion LightDM
-  services.xserver.displayManager.lightdm = {
-    enable = true;
-    greeters.slick.enable = true;
-  };
+  services.xserver.displayManager.lightdm.enable = true;
 
   # Environnement de bureau Cinnamon
   services.xserver.desktopManager.cinnamon.enable = true;

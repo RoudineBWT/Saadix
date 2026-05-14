@@ -10,9 +10,7 @@
           }
         ];
 
-        packages = [
-          { appId = "org.vinegarhq.Sober"; origin = "flathub"; }
-        ];
+        packages = [{ appId = "org.vinegarhq.Sober"; origin = "flathub"; }];
 
         # Mise à jour auto via nix-flatpak
         update.auto = {
